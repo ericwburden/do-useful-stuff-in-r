@@ -1,0 +1,865 @@
+---
+title: "R Data Structures"
+output: 
+  learnr::tutorial:
+    theme:
+      version: 3
+      bootswatch: sandstone
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(bslib)
+
+if (Sys.getenv("CONTAINERIZED") == "TRUE") {
+  source("/usr/bin/learnr/util.R")
+} else {
+  source(rprojroot::is_rstudio_project$find_file("src/learnr/R/util.R"))
+}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Data Structures {#data-structures}
+
+Let's be honest, if you needed to process every piece of information one at a
+time in R, you'd be better off using a spreadsheet. While `x <- 5` is
+...exciting..., working with single values at a time is a bit limiting. That's
+where `r def_link('data structures')` come in handy. In R, there are a
+number of basic data structures that you'll use more or less often, including
+**vectors** (often), **matrices** (less often), **lists** (often), **factors**
+(less often), and **dataframes** (very often). There are also **arrays**, but we
+won't talk about them, because, by the time you actually need to use one, you'll
+be far beyond this introductory tutorial. Don't worry, though, we'll walk
+through each of the other data structures. In fact, we've actually been using a
+data structure this whole time without telling you, the **vector**.
+
+```{r defs1, context="server"}
+observeEvent(input$`data-structures`, {
+  showModal(modalDialog(
+    title = "Data Structures",
+    "A data organization, management, and storage format that enables efficient access and modification. More precisely, a data structure is a collection of data values, the relationships among them, and the functions or operations that can be applied to the data."
+  ))
+})
+```
+
+## Vectors
+
+All of our variables have been vectors up to now. In R, a **vector** is a data
+structure that consists of a sequence of values that are all of the same type. A
+'single' value, like `1`, is just a vector that is one item long. A vector can
+contain any number of values, so long as they are all the same type. These are
+also referred to as *atomic* vectors in a number of places (including
+documentation and error messages). This is to distinguish vectors from another
+data structure called a **list**, which can also be called a *generic* vector.
+For this tutorial, when I mean *atomic vector*, I'll use the term *vector*, and
+when I mean *generic vector*, I'll use the term *list*.
+
+Vectors have three properties accessed through three different functions, one of
+which you already know:
+
+-   A type, accessed through `typeof()`
+-   A length, accessed through `length()`
+-   Additional attributes, accessed through `attributes()`
+
+Vectors can be constructed using the concatenate, `c()`, function. Vectors are
+super powerful because you can perform operations on *every* value in a vector
+at the same time, as shown in the example below:
+
+```{r echo=TRUE}
+example_vector <- c(1, 2, 3, 4, 5, 6)
+example_vector^2  # Raise all values to the power of 2
+```
+
+<br/>If you attempt to assign values of different types to a single vector, all
+values will be automatically converted to the most flexible type, like so:
+
+```{r echo=TRUE}
+c(1, FALSE)
+```
+
+```{r echo=TRUE}
+c('a', 1, FALSE)
+```
+
+<br/>Vectors can be unnamed (like the ones we've created so far) or named.
+
+```{r echo=TRUE}
+c(first_one = 1, second_one = 2, third_one = 3)
+```
+
+<br/>Individual values from vectors can be accessed using either their
+[**index**](#index) or their name, if the vector is named.
+
+```{r echo=TRUE}
+x <- c(first_one = 1, second_one = 2, third_one = 3)
+print(x[2])
+print(x['second_one'])
+```
+
+<br/>Finally, vector math allows you to use vectors as arguments to any
+operation, on a value-by-value basis. So, if you add `c(1, 2)` and `c(3, 4)`,
+for example, you get `c(4, 6)`, which is `1 + 3` and `2 + 4`. Some more examples
+include:
+
+```{r echo=TRUE}
+first_one <- c(10, 10, 10)
+second_one <- c(5, 10, 15)
+first_one - second_one
+```
+
+```{r echo=TRUE}
+first_one * second_one
+```
+
+```{r echo=TRUE}
+first_one / second_one
+```
+
+<small><i>Notice how the output from that last example includes decimals?
+Remember, a vector contains elements that are all the same type, so when an
+operation on one set of elements, `10/15`, returns a decimal, the entire vector
+is represented as a `double`.</i></small>
+
+Many (most) functions included in the box with R operate on multiple values in
+vectors by default, as well, sometimes returning a single value (or a vector
+containing a single item) and sometimes returning a vector with multiple values,
+depending on the function. Here are some examples:
+
+```{r echo=TRUE}
+x <- c(2, -4, 6, -8, 10, NA)
+max(x, na.rm = TRUE)  # Returns the maximum value in the vector
+```
+
+```{r echo=TRUE}
+min(x, na.rm = TRUE)  # Returns the minimum value in the vector
+```
+
+```{r echo=TRUE}
+mean(x, na.rm = TRUE)  # Returns the average of the values
+```
+
+```{r echo=TRUE}
+abs(x)  # Converts all values to absolute value
+```
+
+```{r echo=TRUE}
+as.character(x)  # Converts all values to 'character' types, if possible
+```
+
+```{r echo=TRUE}
+is.na(x)  # Determines which values are missing, if any
+```
+
+<small><i>Note the additional argument to the `max`, `min`, and `mean`
+functions. By default, passing a vector containing an `NA`, or missing, value to
+these functions will yield an `NA` as the result. The `na.rm = TRUE` argument
+instructs the function to ignore the missing values and return an answer as if
+the explicit missing values weren't there.</i></small>
+
+### Quiz
+
+*Try to answer these questions about vectors. Feel free to look back if you need
+to.*
+
+```{r vector_questions}
+quiz(
+  question(
+    'Which of the following statments is true about vectors?',
+    answer(
+      'Vectors always contain multiple values.',
+      message = paste(
+        'Vectors can also contain just a single value. In fact, every',
+        'single value is really a vector in disguise.\n'
+      )
+    ),
+    answer('Values in a vector must be of the same data type.', correct = T),
+    answer('All vectors have a `type` and a `length`.', correct = T),
+    answer(
+      'Every element in a vector must have a name.',
+      message = paste(
+        'Vector elements may be nammed or unnamed. In fact, you can have a',
+        'vector where only **some** elements are named.\n'
+      )
+    ),
+    answer('You can access individual values in a vector by index or by name', correct = T),
+    answer(
+      'You can perform the same operations on vectors as you can on single values.', 
+      correct = T
+    ),
+    answer(
+      'When we say "vector", we are referencing "generic vectors" usually.',
+      message = 'The term "vector" generally refers to "atomic vectors".\n'
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  ),
+  question(
+    paste(
+      'What is the **output** of this **operation**?',
+      '```',
+      '  x <- c(1, 2, 3, 4)',
+      '  y <- c(4, 3, 2, 1)',
+      '  x + y',
+      '```',
+      sep = '\n'
+    ),
+    answer('c(5, 5, 5, 5)', correct = T),
+    answer('c(1, 2, 3, 4, 4, 3, 2, 1)'),
+    answer('20'),
+    incorrect = 'Remember, operations on vectors work on an element-by-element basis.',
+    allow_retry = T,
+    random_answer_order = T
+  )
+)
+```
+
+## Matrices
+
+In R, a **matrix** has absolutely nothing to do with spoons. Instead, matrices build
+on the concepts introduced by vectors by representing *2-dimensional* vectors.
+You can picture a matrix as a 2D, rectangular grid containing items all of the
+same type. A matrix can be constructed using the `matrix()` function, which has
+the following [**method signature**](method-signature):
+
+    matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)
+
+The arguments accepted by the `matrix()` function are as follows:
+
+-   **data**: an optional data vector (or list). Lists are cast to vectors via
+    `as.vector()`
+-   **nrow**: the desired number of rows.
+-   **ncol**: the desired number of columns.
+-   **byrow**: logical. If FALSE (the default) the matrix is filled
+    column-by-column, otherwise the matrix is filled by row-by-row.
+-   **dimnames**: A "dimnames" attribute for the matrix: NULL or a list of
+    length 2 giving the row and column names respectively. An empty list is
+    treated as NULL, and a list of length one as row names. The list can be
+    named, and the list names will be used as names for the dimensions.
+
+<small><i>If you're using RStudio, this information can be accessed directly in
+the console by typing "?matrix" and hitting return. In fact, the documentation
+for most packages and functions can be accessed this way. This is EXTREMELY
+helpful, even for really experienced R developers.</i></small>
+
+Note that the `data` argument is optional, meaning you can create an empty
+matrix. By default, this function will turn a one-dimensional vector into a
+two-dimensional matrix, filling in values from `data` column-by-column to yield
+the desired number of rows/columns. `dimnames` can be used to name the rows and
+columns, much like naming the elements in a vector. Also, you can get away with
+specifying only `nrow` or `ncol`, given one, R will calculate the other for you
+based on the length of the `data` argument. Here's a concrete example:
+
+```{r echo=TRUE}
+y_names <- paste("y", c(1:5), sep = "")
+x_names <- paste("x", c(1:20), sep = "")
+matrix(c(1:100), nrow = 5, ncol = 20, dimnames = list(y = y_names, x = x_names))
+```
+
+</br>You can see that the numbers filled up the first column completely before
+beginning to fill the second column.
+
+You can access matrix elements using indices or names, much like with vectors.
+For the example above, if we assigned the matrix to the variable `m`, we could
+access the value on the third row, fifth column as either `m[3,5]` or
+`m["y3","x5"]`. Of interest, you can also access a row or column from the matrix
+and treat it as a vector. To get the second row, you would use `m[2, ]` or
+`m["y2", ]`. To access the tenth column, you would use `m[ ,10]` or
+`m[ ,"x10"]`. The spaces there aren't actually necessary, but they make it
+easier to read.
+
+Usefully, you can perform vector math operations on these parts of matrices just
+like you can on regular vectors, such as `m[1, ] + m[3, ]` to add the first and
+third rows. You can also perform vector math on matrices directly, just like
+with vectors:
+
+```{r echo=TRUE}
+matrix1 <- matrix(c(1:4), nrow = 2, ncol = 2)
+matrix2 <- matrix(c(5:8), nrow = 2, ncol = 2)
+matrix1 + matrix2
+```
+
+```{r echo=TRUE}
+matrix2 / matrix1
+```
+
+```{r echo=TRUE}
+max(matrix1)
+```
+
+You can select a 'sub-matrix', i.e. multiple rows and columns, by using
+ranges in your index operation instead of just plain numbers. For example, 
+`m[1:3, 1:3]` would return a 3x3 sub-matrix of `m`, starting at the first row,
+first column and selecting to the third row, third column.
+
+
+Matrices also support the `typeof()`, `length()`, and `attributes()`
+functions. If you pass a matrix to `attributes()`, one of the attributes
+returned will always be `dim`, or dimensions, giving you the number of rows and
+columns in the matrix. You can also get the dimensions of a matrix with the
+`dim()` function, and the names of the dimensions (if you named them) with the
+`dimnames()` function.
+
+```{r echo=TRUE}
+matrix3 <- matrix(
+  c(1:9), 
+  nrow = 3, 
+  dimnames = list(foo = c('a', 'b', 'c'), bar = c('x', 'y', 'z'))
+)
+matrix3
+```
+
+```{r echo=TRUE}
+dim(matrix3)
+```
+
+```{r echo=TRUE}
+dimnames(matrix3)
+```
+
+### Quiz
+
+*Try to answer these questions about matrices. Feel free to look back if you
+need to.*
+
+```{r matrix_questions}
+quiz(
+  question(
+    'Which of the following statments is true about matrices?',
+    answer(
+      'A matrix must have multiple rows and columns.',
+      message = paste(
+        'Not necessarily. Your matrix can be 1x1, just line a vector can',
+        'have a length of one, or it can be "one-dimensional" with multiple',
+        'rows and a single column, or vice versa.\n'
+      )
+    ),
+    answer('Values in a matrix must be of the same data type.', correct = T),
+    answer(
+      'All matrices have a `dimnames` attribute.', 
+      message = paste(
+        'Named rows and columns are optional for matrices, just like named',
+        'elements are optional for vectors. Try `attributes()` on a matrix to',
+        'see.\n'
+      )
+    ),
+    answer('All matrices have a `dim` attribute.', correct = T),
+    answer('You can access individual values, rows, or columns in a matrix by index or by name', correct = T),
+    answer(
+      'You can perform the same operations on matrices as you can on single values or vectors.', 
+      correct = T
+    ),
+    answer(
+      'You can index a matrix like so: `m[column_number, row_number]`',
+      message = paste(
+        'One of the tricky things to get used to is the fact that, in most',
+        'programming languages, 2D data is referenced by',
+        '[row_number, column_number], when you may be used to thinking of',
+        'these locations as (x, y) coordinates.\n'
+      )
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  ),
+  question(
+    paste(
+      'What is the **output** of this **operation**?',
+      '```',
+      'matrix(c(1:9), nrow = 3, byrow = T)',
+      '```',
+      sep = '\n'
+    ),
+    answer(
+      paste(
+        '```',
+        '     [,1] [,2] [,3]',
+        '[1,]    1    2    3',
+        '[2,]    4    5    6',
+        '[3,]    7    8    9',
+        '```',
+        sep = '\n'
+      ), 
+      correct = T
+    ),
+    answer(
+      paste(
+        '```',
+        '     [,1] [,2] [,3]',
+        '[1,]    1    4    7',
+        '[2,]    2    5    8',
+        '[3,]    3    6    9',
+        '```',
+        sep = '\n'
+      )
+    ),
+    answer(
+      paste(
+        '```',
+        '     [,1] [,2] [,3]',
+        '[1,]    7    8    9',
+        '[2,]    4    5    6',
+        '[3,]    1    2    3',
+        '```',
+        sep = '\n'
+      )
+    ),
+    incorrect = paste(
+      'The `byrow = FALSE` argument means the matrix will fill up the first row',
+      'before adding numbers to the second row.'
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  )
+)
+```
+
+## Lists
+
+What if you could put *different* types of things in a vector? Well, then you'd
+have that *generic vector* we mentioned in the section on vectors, better 
+known as a **list**. Not only can lists contain multiple values of different
+types, they can contain other data structures, too. So, you can put a vector
+in a list, a matrix in a list, a list in a list in a list in a list (you get
+the idea). You create a list with the `list()` function, passing named or unnamed
+arguments as the new list elements.
+
+```{r echo=TRUE}
+a_vector <- c(1:10)
+a_matrix <- c(1:9) * 11
+a_word <- 'word'
+a_list <- list(1, 'two', c(1, 1, 1))
+list(a_vector = a_vector, a_matrix = a_matrix, a_word = a_word, a_list = a_list)
+```
+
+</br>Now, there are a few things to note about accessing elements in a list. To begin,
+`a_list[1]` and `a_list[[1]]` are different things. The first version, with only
+one set of brackets, returns a *list* containing the first item from `a_list`, 
+while the second version with double brackets returns the *value* of the first
+item from `a_list`. You can confirm this by:
+
+```{r echo=TRUE}
+typeof(a_list[1])
+```
+
+```{r echo=TRUE}
+typeof(a_list[[1]])
+```
+
+</br>You can still access list items by name, using the `a_list["name"]` and
+`a_list[["name"]]` syntax, similar to vectors. but now you have another option:
+`a_list$name`. This explains the `$a_vector`, `$a_matrix`, `$a_word`, and 
+`$a_list` you saw in the output for our example list, these were the named
+items in the list. Using `a_list$name` is equivalent to `a_list[["name"]]`, just
+with fewer characters.
+
+While lists give you a lot of flexibility, you also lose some functionality going
+from a vector to a list, namely the vector math. You can no longer add, subtract,
+get the maximum value, or get the average of a list, because it might not
+contain items that make sense for those functions. After all, what is the average
+value of [1, "tacos", [5, 6, 7]]? If you know your list contains only items
+of the same type (or items that can be converted to the type you want), you can
+use the `unlist()` function to `r def_link("flatten")` your list into a vector.
+
+```{r echo=TRUE}
+another_list <- list(1, "tacos", c(5, 6, 7))
+unlist(another_list)
+```
+
+</br>You can see that we got a character vector back, since that was the most
+flexible data type in our list (refer back to our section on vectors if you
+find this behavior to be strange).
+
+You can get more information about a list using our `typeof()`, `length()`, and
+`attributes()` functions. You can `r def_link("append")` items to a list using
+`a_list[[length(a_list) + 1]] <- new_value` (admittedly a bit cumbersome) or 
+insert named elements with `a_list$new_element <- new_value` (better). You can
+replace a list items value with `a_list$element_name <- new_value`. You can
+also remove an item from a list using `a_list$element_to_remove <- NULL`, i.e.
+by replacing the list item's value with `NULL`.
+
+```{r defs2, context="server"}
+observeEvent(input$`flatten`, {
+  showModal(modalDialog(
+    title = "Flatten",
+    "A verb that refers to the act of taking a nested data structure, like a list containing lists where each list contains more lists, and turning it into a list that contains only \"single\" elements (like numbers, strings, objects, etc.)."
+  ))
+})
+
+observeEvent(input$`append`, {
+  showModal(modalDialog(
+    title = "Append",
+    "A verb that refers to the act of adding one more item to a data structure, typically to the \"end\" of that data structure."
+  ))
+})
+```
+
+### Quiz
+
+*Try to answer these questions about lists. Feel free to look back if you
+need to.*
+
+```{r list_questions}
+quiz(
+  question(
+    'Which of the following statments is true about lists?',
+    answer(
+      'You can access the first value in a list with `a_list[1]`.',
+      message = paste(
+        'This is one of the more potentially confusing things about lists,',
+        'accessing items using single brackets "[]" yields a *list* containing',
+        'that item, using double brackets "[[]]" yields the item itself.\n'
+      )
+    ),
+    answer(
+      'Values in a list must be of the same data type.', 
+      message = paste(
+        'Unlike a vector, items in a list do not need to be the same type, and',
+        'they can be other data structures in addition to primitive types.\n'
+      )
+    ),
+    answer('You can access a list item by name using `a_list$item_name`', correct = T),
+    answer('You can convert a list to a vector with the `unlist()` function.', correct = T),
+    answer('You can remove an item from a list by replacing it with `NULL`', correct = T),
+    answer(
+      'You can perform the same operations on lists as you can on single values or vectors.', 
+      message = paste(
+        'Lists do not support vectorized math operations the way single data type',
+        'data structures do.\n'
+      )
+    ),
+    answer(
+      'To create a new list, pass list items as arguments to the `list()` function',
+      correct = T
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  ),
+  question(
+    paste(
+      'What is the **output** of this **operation**?',
+      '```',
+      'a_list <- list(TRUE, FALSE, matrix(c(1:9), nrow = 3))',
+      'unlist(a_list)',
+      '```',
+      sep = '\n'
+    ),
+    answer('`1 0 1 2 3 4 5 6 7 8 9`', correct = T),
+    answer('`TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE`'),
+    answer('`"TRUE" "FALSE" "1" "2" "3" "4" "5" "6" "7" "8" "9"`'),
+    incorrect = paste(
+      'The resulting vector will default to the most flexible data type',
+      '*in the list* when converting a list to a vector.'
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  )
+)
+```
+
+
+## Factors
+
+Factors are a bit of a funny data structure. They don't quite follow the logical
+progression from vectors to matrices to lists to dataframes (we'll get to those
+next). Factors are very useful, however, for representing *categories*. Let's
+say, for example, that you have a character vector containing the colors of the
+rainbow as strings. Now, this vector has millions of these color names, and 
+you'd like to:
+
+1. Reduce the size of that vector in memory.
+2. Speed up operations on that vector.
+3. Sort that vector some way other than alphabetical.
+4. Restrict strings in that vector to the list of colors you already have.
+
+You can do all of that with a **factor**.
+
+```{r echo=TRUE}
+de_colores <- rep(
+  c('orange', 'blue', 'indigo', 'red', 'green', 'violet', 'yellow', 'brown'),
+  1000000
+)
+de_colores_factor <- factor(
+  de_colores,
+  levels = c('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'),
+  labels = c('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'INDIGO', 'VIOLET'),
+  ordered = TRUE,
+  nmax = 7
+)
+str(de_colores_factor)
+```
+
+```{r echo=TRUE}
+head(de_colores_factor, 10)
+```
+
+```{r echo=TRUE}
+levels(de_colores_factor)
+```
+
+```{r echo=TRUE}
+attributes(de_colores_factor)
+```
+
+
+In testing, `de_colores` above was 64MB, while `de_colores_factor` was 32MB, 
+cutting the original vector's size in half. How is this done? Using the `str()`
+(short for **str**ucture) function on our factor gives us a hint. An R factor is
+really, deep down, a numeric vector where each number is mapped to a label which
+is one of the original strings in our vector. Since a number is 'smaller' in 
+memory than a string (even a small one), the factor is smaller. (This isn't the
+whole story, R does some things to make strings in memory more efficient than
+they otherwise would be. Let's save that discussion for later.) Not only that, 
+but many operations will be faster because the vector is now really numeric.
+
+Let's take a look at the full set of arguments to `factor()` to learn more about 
+what we can do with them:
+
+```
+factor(
+  x = character(), 
+  levels, 
+  labels = levels, 
+  exclude = NA, 
+  ordered = is.ordered(x), 
+  nmax = NA
+)
+```
+
+- **x**: A character vector, or something that can be converted to a character 
+vector.
+- **levels**: an optional vector of the unique values (as character strings) 
+that x might have. The default is the unique set of strings in x, sorted into 
+increasing order of x. The resulting factor can be sorted in order of the
+levels. Any value in x that isn't represented in **levels** will be replaced
+with `NA` in the resulting factor (that's where 'brown' went).
+- **labels**: either an optional character vector of labels for the levels 
+(in the same order as levels after removing those in exclude), or a character 
+string of length 1. Duplicated values in labels can be used to map different 
+values of x to the same factor level. Labels can be applied to change how the
+factor values are displayed.
+- **exclude**: a vector of values to be excluded when forming the set of levels. 
+This may be a factor with the same level set as x or it could be a character
+vector. This is most useful when you're not specifying **levels** explicitly, to 
+remove values from x.
+- **ordered**: logical flag to determine if the levels should be regarded as 
+ordered (in the order given). Mostly this just modifies the way a factor is 
+represented when you print it, but some functions will treat ordered and
+unordered factors differently, so get familiar with function documentation. 
+Sorting will still be based on the order of the factor levels.
+- **nmax**: an upper bound on the number of levels. The actual usage is a bit
+arcane, but if you set this to be the number of factor levels you expect, the
+conversion into a factor will be more efficient. Not a huge deal to leave it out
+in most cases.
+
+As shown above, you can check what levels are in your factor using the `levels()`
+function. Our old standbys of `length()`, `type()`, and `attributes()` still 
+work, too. In most other ways, you can treat a factor as a normal vector. For
+now, the last thing we'll cover is changing the levels.
+
+```{r echo=TRUE}
+# To change factor levels, assign directly to levels(f)
+levels(de_colores_factor) <- c(
+  'rojo', 'naranja', 'amarillo', 'verde', 
+  'azul', 'indigo',  'violeta'
+)
+str(de_colores_factor)
+```
+
+```{r echo=TRUE}
+head(de_colores_factor, 10)
+```
+
+```{r echo=TRUE}
+attributes(de_colores_factor)
+```
+
+We've 're-leveled' this factor, using different names for the values. Assigning 
+to `levels(de_colores_factor)` may look a bit strange, but it works! There's
+lots more we can do with factors and some R libraries to make it easier. We'll
+cover discuss that later, in the relevant sections.
+
+### Quiz
+
+*Try to answer these questions about factors. Feel free to look back if you
+need to.*
+
+```{r factor_questions}
+quiz(
+  question(
+    'Which of the following statments is true about factors?',
+    answer(
+      paste('When creating a factor, you need to pass the argument',
+            '`ordered = TRUE` in order for it to sort properly.'),
+      message = paste(
+        'A factor is always sorted by the order of its levels. Passing',
+        '`ordered = TRUE` just marks the factor as "ordered", which will change',
+        'how some functions treat the factor.\n'
+      )
+    ),
+    answer(
+      'You can only create a factor from a character vector.', 
+      message = paste(
+        'A factor can be created from a character vector, or anything that can',
+        'be converted to a character vector using `as.character()`\n'
+      )
+    ),
+    answer(
+      paste('When creating a factor, you **must** include every string in the',
+            'original character vector as one of the levels.'), 
+      message = paste(
+        'If you do not specify levels, then every string will be considered.',
+        'If you do specify levels, then any string you do not explicitly include',
+        'will be converted to an `NA` in the resulting factor.'
+      )
+    ),
+    answer('Factors are most useful for representing categorical values.', correct = T),
+    answer('You can rename factor levels with `levels(a_factor) <- new_levels`.', correct = T),
+    answer(
+      'A typical factor will take up about half as much memory as a character vector', 
+      correct = T
+    ),
+    answer(
+      paste('You can view factor levels using the `print()`, `attributes()`,',
+            'and `levels()` functions'),
+      correct = T
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  ),
+  question(
+    paste(
+      'In what order will the levels of `a_factor` be?',
+      '```',
+      'weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"',
+      'a_factor <- factor(weekdays)',
+      '```',
+      sep = '\n'
+    ),
+    answer('Monday, Tuesday, Wednesday, Thursday, Friday'),
+    answer('Friday, Monday, Thursday, Tuesday, Wednesday', correct = T),
+    answer('Friday, Thursday, Wednesday, Tuesday, Monday'),
+    incorrect = paste(
+      'Since the levels are not specified, how do factors sort themselves by',
+      'default?'
+    ),
+    allow_retry = T,
+    random_answer_order = T
+  )
+)
+```
+
+## Dataframes
+
+Oh boy! The moment you've been waiting for, even if you didn't know it yet. 
+Dataframes are the biggest reason you should choose to learn R for your data
+cleaning, wrangling, analyzing, extracting, etc. tasks. In a very real sense,
+a dataframe is a list of vectors, where each vector must be the same length
+and represents a single column in a data table.
+
+```{r echo=TRUE}
+a_dataframe <- data.frame(
+  numbers = runif(10, 0, 100),
+  dates = seq(Sys.Date(), by = "month", length.out = 10),
+  categories = factor(
+    sample(rep(c("sm", "md", "lg"), 10), 10),
+    levels = c("sm", "md", "lg"),
+    labels = c("Small", "Medium", "Large")
+  )
+)
+first_five_rows <- head(a_dataframe, 5)
+first_five_rows
+```
+
+You can see a summarized set of information about your dataframe using the 
+`summary()` function. 
+
+```{r echo=TRUE}
+summary(a_dataframe)
+```
+
+Or a description of the dataframe's structure with `str()`.
+
+```{r echo=TRUE}
+str(a_dataframe)
+```
+
+If you are using RStudio (you should be), you can open a viewer for the 
+dataframe using the `View(a_dataframe)` function (or clicking on the dataframe 
+in the Environment pane). The viewer will allow you to sort by columns, filter
+columns, and search the dataframe.
+
+```{r fig1, results="asis"}
+insert_figure(
+  "view-dataframe-screenshot.png", 
+  "RStudio table viewer", 
+  caption = "Figure 1: The table viewer built in to RStudio.", 
+  max_width = "200px"
+)
+```
+
+We will spend a *lot* of time with dataframes and the R packages that make
+working with dataframes really straightforward, but for now, remember that a 
+dataframe is a list with particular constraints. This means that all the 
+operations we learned for vectors and lists still apply. You can select a 
+particular row from your data frame by index (`df[3, ]`), a range of rows by
+index (`df[2:10, ]`), a particular column by index (`df[ ,5]`), multiple
+columns by index (`df[ ,6:11]`), a subset of rows and columns by index 
+(`df[2:10,6:11]`), and columns by name or heading (`df$age` or `df$start_date`
+for example). 
+
+Single columns accessed this way behave just like regular vectors, because they
+are regular vectors. They can be summed, added, subtracted, etc.
+
+The column names in a dataframe don't have to comply with typical R variable 
+naming conventions, so you can have a column named 'Current Status of Education
+Progress' for example. In order to reference columns like this by name, you'll
+need backticks (`` `r '\x60'` ``) around the column name, for example 
+`` `r 'df$\x60Current Status of Education Progress\x60'` ``. You may find
+that to be a pain, but don't worry, you can freely modify column names, but more
+on that later.
+
+You can add rows and columns to existing dataframes using the `rbind()` (row bind)
+and `cbind()` column bind functions, respectively. When using `rbind()`, the
+row or rows you want to add should either be a dataframe with the same columns as
+the dataframe you want to add rows to or a list with the same names as your
+dataframe columns like so:
+
+```{r echo=TRUE}
+a_dataframe <- data.frame(
+  numbers = c(1, 2, 3, 4, 5),
+  letters = c('a', 'b', 'c', 'd', 'e')
+)
+
+b_dataframe <- data.frame(numbers = 6, letters = 'f')
+
+rbind(a_dataframe, b_dataframe)
+```
+
+```{r exercise_test_df, exercise=TRUE, exercise.lines = 4, exercise.eval = T}
+b_list <- list(numbers = 6, letters = 'f')
+
+rbind(a_dataframe, b_list)
+```
+
+```{r exercise_one_df, exercise=TRUE, exercise.lines = 3, exercise.eval = F}
+# This one will return an error
+c_dataframe <- data.frame(foo = 7, bar = 'g')
+rbind(a_dataframe, c_dataframe)
+```
+
+`data.frame()` is the base R function for creating a dataframe, but we won't 
+spend too much time on it. In fact, we're going to spend most of our time from
+now on depending on `r def_link("packages")` designed specifically to make working
+with dataframes (and data in general) more powerful and intuitive. So, hang on 
+tight, don't touch that dial, all that stuff. Next up, our first foray into **The
+Tidyverse**.
+
+```{r defs3, context="server"}
+observeEvent(input$`packages`, {
+  showModal(modalDialog(
+    title = "R Packages",
+    "R packages are a collection of R functions, compiled code and sample data. They are stored under a directory called a \"library\" in the R environment. By default, R installs a set of packages during installation. More packages can be installed added later, when they are needed for some specific purpose. The contents of a package can be accessed in your R code by using the `library()` function."))
+})
+```
+

@@ -1,0 +1,392 @@
+---
+title: "Introduction to R"
+output: 
+  learnr::tutorial:
+    theme:
+      version: 3
+      bootswatch: sandstone
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(bslib)
+
+if (Sys.getenv("CONTAINERIZED") == "TRUE") {
+  source("/usr/bin/learnr/util.R")
+} else {
+  source(rprojroot::is_rstudio_project$find_file("src/learnr/R/util.R"))
+}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Why Choose R?
+
+Let me start with the most convincing argument I have ever seen for choosing
+to use R (or, at least, some programming language) for data manipulation
+and analysis:
+
+```
+marketValue=IF(AND(N212="BOH",N213="BOH")=TRUE,C213*P212,IF(AND(N212="Sell",N213="Sell")=TRUE,Q212,IF(AND(N212="BOH",N213="Sell")=TRUE,P212*C213,IF(AND(N212="Sell",N213="BOH")=TRUE,Q212))))
+```
+<small>Example from [this](https://stackoverflow.com/questions/11317001/converting-excel-functions-into-r) StackOverflow question.</small>
+
+Let's be honest: If you've been using spreadsheets for any appreciable amount 
+of time, this is probably not the *worst* formula you've ever seen. In fact, I 
+find it pretty representative of the types of things you might find in a 
+decently advanced spreadsheet. That's **before** you start trying to do 
+calculations with dates...
+
+Now, how would this look in R?
+
+```{r eval=FALSE, include=TRUE, echo=TRUE}
+#' If the `N` on the current row is "BOH" ("buy or hold"), assign 
+#' the current market value (`Q`) to the `marketValue` column, otherwise, 
+#' assign the current number of shares (`P`) times the next row's closing 
+#' price (`C`).
+table$marketValue <- with(table, ifelse(N == "BOH", Q, P * lead(C)))
+```
+
+<small><i>Those first few lines that start with `#` are **comments**. They're
+only there to help explain what the script is doing. The computer ignores them.
+Comments are great to (a) explain your reasoning to other people who look at 
+your code and (b) help you remember what you were doing when you look back at 
+your code in 6 months and need to change it slightly.</i></small>
+
+So: Did you notice from the spreadsheet formula that the value for N213 doesn't
+actually matter? If not, you're not alone. That formula is objectively hard to 
+read.
+
+So, what does this demonstrate? To be sure, spreadsheets (and other, more 
+sophisticated **B**usiness **I**ntelligence tools) are extremely useful and a
+complete data analysis ecosystem probably includes spreadsheets, BI tools, 
+**and** a robust programming language. Each has their strengths and weaknesses. 
+For R, the strengths include:
+
+- **Scale**: You can work with much larger datasets much more quickly in R, 
+since many of the operations are actually implemented in the very fastest 
+languages available under the hood (like C and FORTRAN).
+- **Access**: It's very straightforward to connect to and analyze data contained
+in a database directly. This is also possible with spreadsheets, but once you
+understand how to do it programmatically, it's considerably more user friendly.
+- **Reproducibility**: Once you have written a script, you can use that script
+100 or 100,000 times and expect to get the same result each time, so long as
+your data doesn't change in strange ways. And, if your code is written clearly,
+you can always look back and easily tell what you did every step of the way.
+The availability of version control systems like Git ensure you can also inspect
+how your code has changed over time and that you can produce a 
+"similar-but-not-the-same" report as the one you did six months ago with
+minimal fuss and confusion.
+- **Complexity**: You can just do more with a script than you can in a 
+spreadsheet. Simple linear regression, sure, use a spreadsheet. Combine multiple
+tables before running a principle components analysis? Use a script. (Honestly,
+combining multiple tables always feels easier to to in a script, regardless of
+what you do after that.) Often, scripts can be a part of a workflow involving 
+transforming data from its raw state to something that can be used/visualized 
+in a spreadsheet or BI tool.
+- **Interactivity**: Programming languages can be used to write programs, too.
+Again, many BI tools offer interactivity in some form or another, but if you 
+want to do more (or just different) than what the BI tool or spreadsheet
+software supports, you'll need to write it yourself. There is a lot of support
+in R for sharing interactive data analytics, charts, tools, etc.
+- **Cost**: R is free. RStudio, the premier R development environment is also
+free. All the R packages on the **C**omprehensive **R** **A**rchive **N**etwork 
+(CRAN), they're free too. A huge library of training and learning materials, 
+including some of the best books on learning R?[^1] You guessed it: freely 
+available on the internet.
+
+[^1]: Additional Resources: [R for Data Science](https://r4ds.had.co.nz/); 
+[Advanced R](https://adv-r.hadley.nz/); [R Packages](https://r-pkgs.org/); 
+[R Graphics Cookbook](http://www.cookbook-r.com/Graphs/); 
+[Exploratory Data Analysis with R](https://leanpub.com/exdata); 
+[Software Carpentry with R](http://swcarpentry.github.io/r-novice-inflammation/); 
+[Hands on Programming with R](https://rstudio-education.github.io/hopr/); 
+[Even More!](https://rstudio.com/resources/books/)
+
+
+The best part is, if you're already familiar with using spreadsheets, looking
+at tabular data (data in tables) or structured data (think, XML or JSON), and
+thinking analytically, you are more than ready to quickly pick up R for 
+basic data analysis and start growing your skills.
+
+Have I convinced you yet? If so, go ahead and install R and RStudio[^2], 
+and move on to the next section of this tutorial.
+
+[^2]: [Install R/RStudio](https://rstudio-education.github.io/hopr/starting.html)
+
+## Starting With Data
+
+These tutorials are designed for folks who are already familiar (at least a 
+little bit) with viewing, manipulating, and analyzing data. Whether your
+experience is primarily with spreadsheets, SQL databases, or a business 
+intelligence tool, you have all the foundation you need to 'level up` your
+skills and pick up a real-live, full-fledged programming language whose primary
+purpose is to speed up and streamline data analysis.
+
+Since we're all data people here, let's start with a familiar topic: data! 
+Specifically, how data is manipulated and described in R. As
+you probably know (or are about to learn for the first time), most programming 
+languages store data in special 'containers' called `r def_link("variables")`. 
+Variables are typically given names that help you remember what type of 
+information they contain. One of the most important (and frequent) things you 
+will do as a programmer is perform `r def_link("operations")` on or with 
+variables. There are lots of different operations (you already know a few), 
+we'll examine a number of the operations available in R and in R packages later 
+on. The images below demonstrate the use of variables and variable operations.
+
+```{r fig1, results="asis"}
+insert_figure(
+  "01_store_variable.png", 
+  "storing value in a variable", 
+  caption = "Figure 1: Storing the value `15` in the variable `score`.", 
+  max_width = "400px"
+)
+```
+
+```{r fig2, results="asis"}
+insert_figure(
+  "02_variable_addition.png",
+  "adding to a variable",
+  caption = "Figure 2: Adding `10` to the value stored in `score` yields `25`."
+)
+```
+
+The way you would express that in code is:
+
+```{r echo=TRUE}
+score <- 15
+score + 10
+```
+
+Notice the block of text with the gray background above? That's a code block,
+and it contains (you guessed it!) code. Below that, in the second box, is the
+`r def_link("output")`, or the result, of the last `r def_link("expression")` 
+in the code block, `score + 10`. Remember this format, you will see it 
+throughout these tutorials.
+
+Also, we've just used our first bit of R-specific `r def_link("syntax")`. If 
+you've ever seen any computer code before, you've probably seen variable 
+`r def_link("assignment")` written something like `name = value`, using 
+the `=` sign as the assignment `r def_link("operator")`. Well, to be honest, 
+that works in R, too, but R is special in that `x = 5`, `x <- 5`, and `5 -> x` 
+all mean the same thing. Most R folks use that second form though, and that's 
+the convention we'll adopt in these tutorials. (Hint: If you're using RStudio,
+you can type `<-` with the `Alt+-` hotkey. It'll quickly become second nature.)
+
+### Naming Variables
+
+In R, like most programming languages, there are certain constraints around what
+constitutes a 'valid' name for a variable. The rules are as follows:
+
+1. Variable names can only include letters, digits, periods (.) and 
+underscores (_).
+2. A variable name must start with a letter or a period. If it starts with a 
+period, the second character must be a letter.
+3. Reserved words in R cannot be used as variable names. Reserved words include
+'if', 'else', 'repeat', 'while', 'function', 'for', 'in', 'next', 'break', 
+'TRUE', 'FALSE', 'NULL', 'Inf', 'NaN', 'NA', 'NA_integer_', 'NA_real_', 
+'NA_complex_', 'NA_character_'. 
+
+### Exercise 
+
+*Try the following exercises in this interactive code block*
+
+- Write the R code required to add two plus two
+- Assign a value to a variable and do some math with it
+- See if you can guess what symbols (operators) to use for arithmetic functions
+- Bonus points if you can figure out addition, subtraction, multiplication,
+division, and exponents
+- Try to assign a value to a variable with an invalid name.
+
+```{r exercise_one, exercise=TRUE, exercise.lines = 5, exercise.eval = T}
+score <- 15
+score + 10
+```
+
+```{r defs1, context="server"}
+observeEvent(input$`variables`, {
+  showModal(modalDialog(
+    title = "Variable",
+    "In computer programming, a variable is a storage location paired with an associated symbolic name (an identifier) which contains a value. In other words, a variable is a storage location for data."
+  ))
+})
+
+observeEvent(input$`operations`, {
+  showModal(modalDialog(
+    title = "Operation",
+    "A process in which a number, quantity, expression, etc., is altered or manipulated according to formal rules, such as those of addition, multiplication, and differentiation. In programming, operations are not just limited to arithmetic, but can include examples such as rearrangement, adding or removing values to/from lists, writing data to a file, etc."
+  ))
+})
+
+observeEvent(input$`output`, {
+  showModal(modalDialog(
+    title = "Output",
+    "Information that is processed by and sent 'out' from a computer or other electronic device. An example of output is 
+anything viewed on your computer monitor screen, such as the words you type on your keyboard. Also, the result of an **operation**."
+  ))
+})
+
+observeEvent(input$`expression`, {
+  showModal(modalDialog(
+    title = "Expression",
+    "An expression is a syntactic entity in a programming language that may be evaluated to determine its value. It is a combination of one or more constants, variables, functions, and operators that the programming language interprets and processes."
+  ))
+})
+
+observeEvent(input$`syntax`, {
+  showModal(modalDialog(
+    title = "Syntax",
+    "The set of rules that defines the combinations of symbols that are considered to be correctly structured statements or expressions in that language."
+  ))
+})
+
+observeEvent(input$`assignment`, {
+  showModal(modalDialog(
+    title = "Assignment",
+    "An assignment statement sets and/or re-sets the value stored in the storage location(s) denoted by a variable name; in other words, it copies a value into the variable."
+  ))
+})
+
+observeEvent(input$`operator`, {
+  showModal(modalDialog(
+    title = "Operator",
+    "A character or characters that determine the action that is to be performed or considered."
+  ))
+})
+```
+
+## Data Types
+
+When we talk about how data is stored in R, either in variables or in files, we
+need to consider `r def_link("data types")`, or, what 'kind' of information
+is in our variable. This is important because while the result of the operation
+`1 + 1` should be pretty intuitive, the result of `'a' + 1` probably isn't. It
+actually doesn't make sense to R, either, and if you try it you'll get the
+following helpful message
+
+```{r echo=FALSE, warning=TRUE}
+tryCatch('a' + 1, error = function(e) cat(as.character(e)))
+```
+
+That is a genuine, grade-A error message, and you're going to see a lot of those
+if you pursue the path of a programmer, especially at first. Error messages
+don't really go away as you get more experience either, but your relationship
+with them is likely to move from frustration to appreciation, since, with
+practice, they can become extremely helpful in writing good, working code.
+
+Ok, back to *data types*. In R, there are six basic data types:
+
+- **logical**: `TRUE` or `FALSE`, also called a 'boolean' value
+- **integer**: whole numbers, like `1`, `2`, `356`
+- **double**: decimal numbers, like `1.5`, `2.0`, `3.9`
+- **character**: letters and other alphanumeric characters, 
+like `'a'`, `'@'`, `'1'`, `'cheese'`
+- **complex**: complex numbers, like `1+2i`, `5+9i`
+- **raw**: raw bytes represented in hexadecimal, like `c8`, `05`, `ff`
+
+Some notes about data types:
+
+- Of the six data types, **complex** and **raw** are likely to be less useful
+day-to-day (excepting some more specialized use-cases), so we won't talk about
+those much. In addition, **integer** is only there to allow communication 
+between R and other languages that use *single-precision* data types, like C
+or FORTRAN. There's a very high chance you won't need to try to use **integers**
+directly.
+- **double** data is the type for numbers you will work with most often. It's
+what numbers that *look* like integers will be stored as, since `typeof(5)`
+will return `"double"`. This means operations like `5 + 1.9` will just work,
+since `5` and `1.9` are both of type `double`. 
+- **character** data is denoted by quotes, either single `'` or double `"`. It 
+doesn't matter much which one you use, so long as you're consistent. In this 
+tutorial, you will see **character** data indicated by single quotes.
+
+One last note, you can always check the data type of a value or variable using
+the `typeof()` `r def_link("function")`. We'll talk (a lot) more about
+functions, but for now, just know that running this R code, `typeof(x)`, would
+provide you with the name of the data type stored in the variable `x`.
+
+```{r defs2, context="server"}
+observeEvent(input$`data-types`, {
+  showModal(modalDialog(
+    title = "Data Types",
+    "An attribute of data which tells the computer how the programmer intends to use the data. A data type indicates which operations that can be done on the data, the meaning of the data, and the way values of that type can be stored."
+  ))
+})
+
+observeEvent(input$`function`, {
+  showModal(modalDialog(
+    title = "Function",
+    "A block of organized, reusable code that is used to perform a single, related action. Functions typically take values to operate on, called 'arguments', and may or may not provide a value back to the code that invoked the function, called a 'return value'."
+  ))
+})
+```
+
+### Exercise
+
+Satisfy yourself that you can store logical, double, and character
+values in a variable and confirm the 'type of' the variable. Remember, you
+can name a variable anything you want.
+
+```{r exercise_two, exercise=TRUE, exercise.lines = 5, exercise.eval = T}
+logical_value <- TRUE
+typeof(logical_value)
+```
+
+## Type Conversion
+
+In R, you will want to pay particular attention to the data types of your values
+and variables, because R is a **dynamically-typed** language, meaning the types
+of your values, variables, arguments, etc. will only be checked when your program
+is run. This is in contrast to **statically-typed** languages that will check
+types *before* running (or compiling) code and alert you to data type issues 
+through error messages. Luckily, R provides you with the tools you need to 
+ensure your variables are the type you are expecting and to `r def_link("cast")`
+your variables to the appropriate type when you need to.
+
+The `is.*()` family of functions are similar to the `typeof()` function, except
+they allow you to confirm whether or not a given variable is a particular 
+data type. There are `is.*()` functions for all the primitive data types and
+for a lot of the more complex data types (or structures) we'll look at in future
+tutorials. `is.double()`, for example, will return `TRUE` if the given argument
+is a double type value, and `FALSE` if it is not. There are also `is.integer()`, 
+`is.character()`, `is.complex()`, `is.logical()`, `is.raw()`, and `is.numeric()`.
+`is.numeric()` is a bit of a special case, it will return `TRUE` for any value 
+that can be interpreted as a number, meaning both integers and doubles.
+
+The `as.*()` family of functions will attempt to convert (or cast) their 
+argument to the given data type. There are also `as.*()` functions for all the
+primitive data types, too. For example, `as.double("1")` will return the 
+double value of `1.0`. There are also `as.integer()`, `as.character()`, 
+`as.complex()`, `as.logical()`, `as.raw()`, and `as.numeric()`. `as.numeric()`
+just converts arguments to doubles, so it is essentially the same as `as.double()`.
+
+### Exercise
+
+Satisfy yourself that you can check the types of variables and convert variables
+from one type to another. Uncomment one or more lines below to see the result.
+
+```{r exercise_three, exercise=TRUE, exercise.lines = 8, exercise.eval = T}
+double_value <- 1.5
+# is.character(double_value)
+# is.double(double_value)
+
+character_value <- as.character(double_value)
+# is.character(character_value)
+# is.double(character_value)
+```
+
+```{r defs3, context="server"}
+observeEvent(input$`cast`, {
+  showModal(modalDialog(
+    title = "Cast",
+    span(
+      span("Type casting is when you assign a value of one primitive data type to another type, such as converting the string value of "),
+      tags$code("\"1\""),
+      span(" to the numeric value "),
+      tags$code("1"),
+      span(".")
+    )
+  ))
+})
+```
+

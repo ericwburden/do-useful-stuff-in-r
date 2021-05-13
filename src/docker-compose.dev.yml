@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.8"
 services:
 
   proxy:
@@ -10,28 +10,19 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
-      - --entrypoints.web.http.redirections.entryPoint.to=websecure
-      - --entrypoints.web.http.redirections.entryPoint.scheme=https
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.res.acme.tlschallenge=true
-      - --certificatesresolvers.res.acme.email=eric.w.burden@gmail.com
-      - --certificatesresolvers.res.acme.storage=/letsencrypt/acme.json
     ports:
       - 80:80
-      - 443:443
       # - 8080:8080
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
       - default
     volumes:
-      - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`dashboard.${DOMAIN?Variable not set}`)
       - traefik.http.routers.api.service=api@internal
-      - traefik.http.routers.api.entrypoints=websecure
-      - traefik.http.routers.api.tls.certresolver=res
+      - traefik.http.routers.api.entrypoints=web
       
       
   shiny:
@@ -43,9 +34,8 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.shiny.rule=Host(`${DOMAIN?Variable not set}`)||Host(`www.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.shiny.entrypoints=websecure
+      - traefik.http.routers.shiny.entrypoints=web
       - traefik.http.services.shiny.loadbalancer.server.port=3838
-      - traefik.http.routers.shiny.tls.certresolver=res
       
 networks:
   traefik-public:

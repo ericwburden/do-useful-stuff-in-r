@@ -1,13 +1,11 @@
 library(shiny)
 library(bslib)
 
-domain <- if (Sys.getenv("DOMAIN") != "") { Sys.getenv("DOMAIN") } else { "http://localhost:3838" }
-
 full_row <- function(...) {
     fluidRow(column(width = 12, ...))
 }
 
-generate_tutorials_menu <- function(domain) {
+generate_tutorials_menu <- function() {
     tutorial_dirs <- list.dirs("tutorial", recursive = FALSE)
     tutorials_menu_args <- list(title = "Tutorials", menuName = "tutorials-menu")
     
@@ -15,7 +13,7 @@ generate_tutorials_menu <- function(domain) {
         rmd_file <- paste(dir, "index.Rmd", sep = "/")
         yaml_frontmatter <- rmarkdown::yaml_front_matter(rmd_file)
         title <- yaml_frontmatter$title
-        url_path <- paste(domain, "tutorial", basename(dir), sep = "/")
+        url_path <- paste("tutorial", basename(dir), sep = "/")
         
         # Saves off the first tutorial tab name into an environment variable, used
         # by the 'Get Started' button
@@ -84,7 +82,7 @@ ui <- navbarPage(
             )
         )
     ),
-    generate_tutorials_menu(domain)
+    generate_tutorials_menu()
     
 )
 

@@ -37,7 +37,6 @@ generate_tutorials_menu <- function() {
 ui <- navbarPage(
     theme = bs_theme(version = 4, bootswatch = "sandstone"),
     includeCSS("www/css/style.css"),
-    includeScript("www/js/stretch-contents.js"),
     id = "navbar-main",
     title = "Do Useful Stuff in R!",
     selected = "welcome-page",

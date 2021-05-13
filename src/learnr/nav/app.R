@@ -37,50 +37,43 @@ generate_tutorials_menu <- function() {
 ui <- navbarPage(
     theme = bs_theme(version = 4, bootswatch = "sandstone"),
     includeCSS("www/css/style.css"),
+    includeScript("www/js/stretch-contents.js"),
     id = "navbar-main",
     title = "Do Useful Stuff in R!",
     selected = "welcome-page",
+    collapsible = TRUE,
     tabPanel(
         "Welcome",
         value = "welcome-page",
-        div(class = 'welcome-bg'),
-        fluidPage(
-            fluidRow(
-                column(
-                    width = 8, 
-                    offset = 2, 
-                    fluidRow(
-                        column(
-                            width = 12,
-                            class = "welcome-page-contents",
-                            full_row(
-                                h2(
-                                    "Your 'Get out of Excel Free' Card",
-                                    class = "display-4 text-center bolder text-success mt-4 bg-light"
-                                )
-                            ),
-                            full_row(
-                                p(
-                                    "There's a better way to understand, visualize, and reproduce your data. ",
-                                    "The R programming language, is free, open-source, and made for people like ",
-                                    "you to do jobs like yours (you know, the one with spreadsheets). Dive in to ",
-                                    "revolutionize your workflows and never go back to asking 'Now, which formula ",
-                                    "did I run first?' again.",
-                                    class = "lead text-center bg-success text-light p-2"
-                                )
-                            ),
-                            full_row(
-                                actionButton(
-                                    "get-started-btn",
-                                    "Get Started",
-                                    class = "btn-success"
-                                )
-                            )
-                        )
+        class = "welcome-page",
+        fluidRow(column(width = 8, offset = 2, 
+            full_row(
+                class = "welcome-page-contents",
+                full_row(
+                    h2(
+                        "Your 'Get out of Excel Free' Card",
+                        class = "display-4 text-center bolder text-success mt-4 bg-light"
+                    )
+                ),
+                full_row(
+                    p(
+                        "There's a better way to understand, visualize, and reproduce your data. ",
+                        "The R programming language, is free, open-source, and made for people like ",
+                        "you to do jobs like yours (you know, the one with spreadsheets). Dive in to ",
+                        "revolutionize your workflows and never go back to asking 'Now, which formula ",
+                        "did I run first?' again.",
+                        class = "lead text-center bg-success text-light p-2"
+                    )
+                ),
+                full_row(
+                    actionButton(
+                        "get-started-btn",
+                        "Get Started",
+                        class = "btn-success"
                     )
                 )
             )
-        )
+        ))
     ),
     generate_tutorials_menu()
     

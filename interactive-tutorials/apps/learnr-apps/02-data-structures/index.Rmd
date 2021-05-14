@@ -36,7 +36,7 @@ be far beyond this introductory tutorial. Don't worry, though, we'll walk
 through each of the other data structures. In fact, we've actually been using a
 data structure this whole time without telling you, the **vector**.
 
-```{r defs1, context="server"}
+```{r def_data_structures, context="server"}
 observeEvent(input$`data-structures`, {
   showModal(modalDialog(
     title = "Data Structures",
@@ -222,9 +222,17 @@ In R, a **matrix** has absolutely nothing to do with spoons. Instead, matrices b
 on the concepts introduced by vectors by representing *2-dimensional* vectors.
 You can picture a matrix as a 2D, rectangular grid containing items all of the
 same type. A matrix can be constructed using the `matrix()` function, which has
-the following [**method signature**](method-signature):
+the following `r def_link("method signature")`:
 
-    matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)
+    `matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)`
+
+```{r def_method_signature, context="server"}
+observeEvent(input$`method-signature`, {
+  showModal(modalDialog(
+    title = "Method Signature",
+    "A method signature defines the inputs and outputs for a function, subroutine or method. It includes the number, types and order of the arguments to be passed to a function."))
+})
+```
 
 The arguments accepted by the `matrix()` function are as follows:
 
@@ -479,14 +487,16 @@ replace a list items value with `a_list$element_name <- new_value`. You can
 also remove an item from a list using `a_list$element_to_remove <- NULL`, i.e.
 by replacing the list item's value with `NULL`.
 
-```{r defs2, context="server"}
+```{r def_flatten, context="server"}
 observeEvent(input$`flatten`, {
   showModal(modalDialog(
     title = "Flatten",
     "A verb that refers to the act of taking a nested data structure, like a list containing lists where each list contains more lists, and turning it into a list that contains only \"single\" elements (like numbers, strings, objects, etc.)."
   ))
 })
+```
 
+```{r def_append, context="server"}
 observeEvent(input$`append`, {
   showModal(modalDialog(
     title = "Append",
@@ -856,7 +866,7 @@ with dataframes (and data in general) more powerful and intuitive. So, hang on
 tight, don't touch that dial, all that stuff. Next up, our first foray into **The
 Tidyverse**.
 
-```{r defs3, context="server"}
+```{r def_packages, context="server"}
 observeEvent(input$`packages`, {
   showModal(modalDialog(
     title = "R Packages",

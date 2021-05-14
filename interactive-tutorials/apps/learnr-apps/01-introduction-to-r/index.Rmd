@@ -204,21 +204,25 @@ score <- 15
 score + 10
 ```
 
-```{r defs1, context="server"}
+```{r def_variables, context="server"}
 observeEvent(input$`variables`, {
   showModal(modalDialog(
     title = "Variable",
     "In computer programming, a variable is a storage location paired with an associated symbolic name (an identifier) which contains a value. In other words, a variable is a storage location for data."
   ))
 })
+```
 
+```{r def_operations, context="server"}
 observeEvent(input$`operations`, {
   showModal(modalDialog(
     title = "Operation",
     "A process in which a number, quantity, expression, etc., is altered or manipulated according to formal rules, such as those of addition, multiplication, and differentiation. In programming, operations are not just limited to arithmetic, but can include examples such as rearrangement, adding or removing values to/from lists, writing data to a file, etc."
   ))
 })
+```
 
+```{r def_output, context="server"}
 observeEvent(input$`output`, {
   showModal(modalDialog(
     title = "Output",
@@ -226,28 +230,36 @@ observeEvent(input$`output`, {
 anything viewed on your computer monitor screen, such as the words you type on your keyboard. Also, the result of an **operation**."
   ))
 })
+```
 
+```{r def_expression, context="server"}
 observeEvent(input$`expression`, {
   showModal(modalDialog(
     title = "Expression",
     "An expression is a syntactic entity in a programming language that may be evaluated to determine its value. It is a combination of one or more constants, variables, functions, and operators that the programming language interprets and processes."
   ))
 })
+```
 
+```{r def_syntax, context="server"}
 observeEvent(input$`syntax`, {
   showModal(modalDialog(
     title = "Syntax",
     "The set of rules that defines the combinations of symbols that are considered to be correctly structured statements or expressions in that language."
   ))
 })
+```
 
+```{r def_assignment, context="server"}
 observeEvent(input$`assignment`, {
   showModal(modalDialog(
     title = "Assignment",
     "An assignment statement sets and/or re-sets the value stored in the storage location(s) denoted by a variable name; in other words, it copies a value into the variable."
   ))
 })
+```
 
+```{r def_operator, context="server"}
 observeEvent(input$`operator`, {
   showModal(modalDialog(
     title = "Operator",
@@ -306,14 +318,16 @@ the `typeof()` `r def_link("function")`. We'll talk (a lot) more about
 functions, but for now, just know that running this R code, `typeof(x)`, would
 provide you with the name of the data type stored in the variable `x`.
 
-```{r defs2, context="server"}
+```{r def_data_types, context="server"}
 observeEvent(input$`data-types`, {
   showModal(modalDialog(
     title = "Data Types",
     "An attribute of data which tells the computer how the programmer intends to use the data. A data type indicates which operations that can be done on the data, the meaning of the data, and the way values of that type can be stored."
   ))
 })
+```
 
+```{r def_function, context="server"}
 observeEvent(input$`function`, {
   showModal(modalDialog(
     title = "Function",
@@ -376,7 +390,7 @@ character_value <- as.character(double_value)
 # is.double(character_value)
 ```
 
-```{r defs3, context="server"}
+```{r def_cast, context="server"}
 observeEvent(input$`cast`, {
   showModal(modalDialog(
     title = "Cast",

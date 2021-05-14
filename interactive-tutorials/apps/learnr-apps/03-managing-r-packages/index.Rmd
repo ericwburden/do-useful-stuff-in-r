@@ -1,0 +1,219 @@
+---
+title: "Managing R Packages"
+output: 
+  learnr::tutorial:
+    theme:
+      version: 3
+      bootswatch: sandstone
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(bslib)
+library(dplyr)
+
+if (Sys.getenv("CONTAINERIZED") == "TRUE") {
+  source("/usr/bin/learnr/util.R")
+} else {
+  source(rprojroot::is_rstudio_project$find_file("interactive-tutorials/R/util.R"))
+}
+
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+This is the last of the 'introductory' tutorials, helping provide you with the
+foundations you need to be successful when using R in general. In this tutorial,
+we will discuss R packages in more detail, how to install them, and which 
+packages we will be using throughout the rest of the tutorials. We will reference
+some screens in the [RStudio](https://rstudio-education.github.io/hopr/starting.html) 
+IDE, so if you haven't downloaded and installed it yet, now is a good time.
+
+## Using Packages in R
+
+Why are R packages so important? Well, it beats having to do everything yourself,
+from scratch, re-inventing the wheel every time to need to solve a problem. One
+of the truly wonderful aspects of working with an open-source system/programming
+language like R is just how much work other people have already done for you! Not
+**you**, specifically, of course, but for the community at large. There are a
+number of talented, driven people out there (you may be one of them) who derive
+great pleasure from building and releasing software for other programmers to use.
+If you weren't before, you are now one of those 'other programmers'. And the way
+you get access to those tools and code, at least in R, is through *packages*.
+
+R packages are generally (but not always) downloaded from
+[CRAN](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-is-CRAN_003f), or, the
+**C**omprehensive **R** **A**rchive **N**etwork. In general, especially at first,
+this is not something you will really need to care about, but it's good to know.
+You can browse a listing of all CRAN packages 
+[HERE](https://cran.r-project.org/web/packages/available_packages_by_name.html) 
+in alphabetical order or with a few more search bells and whistles at 
+[METACRAN](https://www.r-pkg.org/) (including trending packages, most downloaded,
+etc.). The [R Views](https://rviews.rstudio.com/) newsletter regularly releases
+a newsletter describing top new packages, and a quick web search for "R package
+to <insert thing here>" is likely to yield good results. If that all seems a 
+little overwhelming, don't worry: these tutorials will walk you through a few
+*really* useful R packages that will handle the vast majority of your data 
+wrangling and analysis needs.
+
+Once you have downloaded and installed an R package (we'll detail how in the
+next section), there are a couple of ways you can use the code in that package.
+The first, and most frequent, is through the `library()` function. Calls to 
+`library(package_name)` are typically included at the very top of an R script, 
+and this function `r def_link("attaches")` that package to your current search 
+list, which just means it makes the code inside that package available to the
+rest of your script. For an example. let's say you have a package named 
+`openxlsx` (a real package), with a function called `read.xlsx()` (a real 
+function) that can read in a sheet from and Excel workbook and convert it to
+an R dataframe (handy stuff!). You would use that package function like so:
+
+```{r def_attaches, context="server"}
+observeEvent(input$`attaches`, {
+  showModal(modalDialog(
+    title = "Attaching in R",
+    "When a package is attached to the R search path, the package is searched by R when evaluating a variable or function name, so objects in the package can be accessed by simply giving their names. When evaluating a variable or function name R searches for that name in the databases (environments, lists, packages, etc.) in the search list. The first name of the appropriate type is used."
+  ))
+})
+```
+
+```{r, eval=FALSE, echo=TRUE}
+library(openxlsx)
+
+# Maybe you have some other code here
+
+a_dataframe <- read.xlsx("path/to/xlsx/file.xlsx")
+```
+
+When using `library()`, if you try to attach a package you haven't downloaded and
+installed (or if you mis-spelled the name), you will get a helpful error message:
+
+```{r, eval=FALSE, echo=TRUE}
+library(openxxlx)
+```
+
+```
+Error in library(openxxlx) : there is no package called ‘openxxlx’
+```
+
+There may be times where you want to do something different depending on whether
+or not a particular package has been installed. In that case, you'll want the
+`require()` function. `require()` attaches a package like `library()`, but it 
+won't cause an error message if the package is not available. Instead, it 
+returns `TRUE` or `FALSE`, indicating whether the indicated package was attached.
+For example:
+
+```{r, eval=FALSE, echo=TRUE}
+is_available <- require(openxlsx)  # TRUE
+is_available <- require(openxxlx)  # FALSE
+```
+
+The final option for accessing the contents of a package is to use the `::`
+operator to access the `r def_link("namespace")` of the package directly. With
+this syntax, you don't need to call `library()` or `require()`, but do need to
+include the package name every time, like `openxlsx::read.xlsx()`. Using the
+access operator is a trade-off between increasing both verbosity (how much you
+have to type) and clarity (it is immediately clear which package that function
+came from). You may find you develop a preference for one or the other style. For
+these tutorials, we will use the `package::function()` style most often to make
+it clear which functions are being used. You may also **need** to use the access
+operator in case you have two packages that contain two different functions with
+the same name.
+
+```{r def_namespace, context="server"}
+observeEvent(input$`namespace`, {
+  showModal(modalDialog(
+    title = "Namespace",
+    "In computing, a namespace is a set of signs (names) that are used to identify and refer to objects of various kinds. A namespace ensures that all of a given set of objects have unique names so that they can be easily identified.
+
+Namespaces are commonly structured as hierarchies to allow reuse of names in different contexts. As an analogy, consider a system of naming of people where each person has a given name, as well as a family name shared with their relatives. If the first names of family members are unique only within each family, then each person can be uniquely identified by the combination of first name and family name; there is only one Jane Doe, though there may be many Janes. Within the namespace of the Doe family, just \"Jane\" suffices to unambiguously designate this person, while within the \"global\" namespace of all people, the full name must be used."
+  ))
+})
+```
+
+## Installing R Packages
+
+If R packages are so useful, then how to we install them? It's fairly simple, 
+really. For your first option, you can use the graphical user interface in the
+RStudio API. In your 'Packages' pane, there is an 'Install' button. (Your 'Packages'
+pane may be arranged a bit differently than mine, depending on how you've set 
+up your RStudio).
+
+```{r fig1, results="asis"}
+insert_figure(
+  "install-packages-button.png", 
+  "install packages button", 
+  caption = "Figure 1: The 'Install' button in the RStudio 'Packages' pane.", 
+  max_width = "800px"
+)
+```
+
+Once you do, you will get a 'pop-up' window where you can choose a repository 
+(we'll stick with CRAN), a library (the default is great for now), a checkbox
+indicating whether or not you want to also download `r def_link("dependencies")`, 
+and a text box for typing your desired package name. As you can see, this text 
+box will provide auto-completion, helping to make sure you get the right 
+package from CRAN.
+
+```{r def_dependencies, context="server"}
+observeEvent(input$`dependencies`, {
+  showModal(modalDialog(
+    title = "Package Dependencies",
+    "Sometimes (many times) one R package 'depends' on code from another R package. Instead of rewriting the code themselves, package authors may instead mark the other packages they depend on as 'dependencies'. R knows this, and can go ahead and download the package you want and all of the other packages it depends on. You will generally want to do this, since the package you wanted to use may not work or work correctly without its 'dependencies'."
+  ))
+})
+```
+
+```{r fig2, results="asis"}
+insert_figure(
+  "install-packages-modal.png", 
+  "install packages modal", 
+  caption = "Figure 2: The 'Install Packages' pop-up window.", 
+  max_width = "400px"
+)
+```
+
+The other option is to just use the `install.packages()` function built into
+base R. (*Base R*, by the way, is how we refer to R without any packages added.)
+`install.packages()` actually *can* take a wide variety of arguments, but in 
+general you will either call it as `install.packages("packagename")` to install
+a single package, or `install.packages(c("packageone", "packagetwo"))` for 
+multiple packages. In fact, if you watch your console, the 'Install Packages'
+pop-up is just calling `install.packages()` for you. Neat, huh? Also, if you
+use `install.packages()` without any arguments, your system will (most likely)
+present you with an alphabetical listing of CRAN packages you can choose to 
+install.
+
+## Into the Tidyverse
+
+According to the [Tidyverse](www.tidyverse.org) website:
+
+> The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures.
+
+That's a fairly specific way of saying it's a bunch of R packages that work really
+well together, for data stuff. Handily, you can install all of these packages
+with `install.packages("tidyverse")` (and then take a walk, it'll take a minute
+to install all of them). You should visit that Tidyverse website, by the way, 
+there's a lot of good information there. Of the packages included in the 
+`tidyverse` install, there are:
+
+- `dplyr`: Provides a whole host of functions for manipulating dataframes.
+- `tidyr`: Provides a set of functions for cleaning dataframes.
+- `readr`: Provides functions for reading data from various text formats.
+- `readxl`: Provides functions for reading spreadsheets into dataframes.
+- `stringr`: Provides functions for working with strings (and regular expressions).
+- `lubridate`: Provides functions and objects for working with dates and times.
+- `ggplot2`: Provides a whole host of tools for making data visualizations (charts).
+- `forcats`: Provides functions to make working with factors easier.
+
+There's other stuff in there too, but these are the main packages we will step
+into, one by one. You can expect to get a solid foundation in each of these by
+following these tutorials, enough to easily become more productive than you 
+could with spreadsheets alone. If you have an hour to spare, this RStudio talk
+from 2019 is a good indicator of the things we'll cover in the upcoming
+tutorials: 
+
+![](https://www.youtube.com/watch?v=wfMAaXWHGog)
+
+

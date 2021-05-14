@@ -15,8 +15,9 @@ library(bslib)
 if (Sys.getenv("CONTAINERIZED") == "TRUE") {
   source("/usr/bin/learnr/util.R")
 } else {
-  source(rprojroot::is_rstudio_project$find_file("src/learnr/R/util.R"))
+  source(rprojroot::is_rstudio_project$find_file("interactive-tutorials/R/util.R"))
 }
+
 knitr::opts_chunk$set(echo = FALSE)
 ```
 

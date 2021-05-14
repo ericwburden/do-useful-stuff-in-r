@@ -28,9 +28,9 @@ RUN chown -R shiny:shiny /var/log/shiny-server
 COPY shiny-server.sh /usr/bin/shiny-server.sh
 RUN chown shiny:shiny /usr/bin/shiny-server.sh
 
-COPY learnr/nav/ /srv/shiny-server
-COPY learnr/tutorial /srv/shiny-server/tutorial
-COPY learnr/R/ /usr/bin/learnr
+COPY apps/nav/ /srv/shiny-server
+COPY apps/learnr-apps /srv/shiny-server/tutorial
+COPY R/ /usr/bin/learnr
 RUN chown -R shiny:shiny /srv/shiny-server
 
 RUN echo "CONTAINERIZED=\"TRUE\"" >> /usr/lib/R/etc/Renviron.site

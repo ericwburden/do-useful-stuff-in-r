@@ -30,6 +30,11 @@ body {
 
 iframe {
   flex-grow: 1;
+  display: none;
+}
+
+.tab-pane.active iframe {
+  display: block;
 }
 
 nav {

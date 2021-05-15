@@ -25,6 +25,7 @@ generate_tutorials_menu <- function() {
             src = url_path,
             width = "100%",
             height = "100vh",
+            loading = "lazy",
             style="border:none;"
         )
         tab_panel <- tabPanel(title, embedded_tutorial)

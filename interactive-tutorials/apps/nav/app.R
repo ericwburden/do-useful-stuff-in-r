@@ -20,14 +20,16 @@ generate_tutorials_menu <- function() {
         if (Sys.getenv("FIRST_TUTORIAL_TAB") == "") {
             Sys.setenv(FIRST_TUTORIAL_TAB = title)
         }
-        
+
         embedded_tutorial <- tags$iframe(
-            src = url_path,
+            src = "/html/loader.html",
+            `data-src` = url_path,
+            class = "lazy",
             width = "100%",
             height = "100vh",
-            loading = "lazy",
-            style="border:none;"
+            style = "border:none;"
         )
+        
         tab_panel <- tabPanel(title, embedded_tutorial)
         tutorials_menu_args[[length(tutorials_menu_args) + 1]] <- tab_panel
     }
@@ -38,6 +40,7 @@ generate_tutorials_menu <- function() {
 ui <- navbarPage(
     theme = bs_theme(version = 4, bootswatch = "sandstone"),
     includeCSS("www/css/style.css"),
+    tags$head(tags$script(src ="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.3.1/dist/lazyload.min.js")),
     id = "navbar-main",
     title = "Do Useful Stuff in R!",
     selected = "welcome-page",
@@ -75,8 +78,8 @@ ui <- navbarPage(
             )
         ))
     ),
-    generate_tutorials_menu()
-    
+    generate_tutorials_menu(),
+    includeScript("www/js/lazyload-activate.js")
 )
 
 # Define server logic required to draw a histogram

@@ -174,6 +174,9 @@ all mean the same thing. Most R folks use that second form though, and that's
 the convention we'll adopt in these tutorials. (Hint: If you're using RStudio,
 you can type `<-` with the `Alt+-` hotkey. It'll quickly become second nature.)
 
+<small>You can get a listing of the basic arithmetic operators in R by typing 
+'?Arithmetic' into the R console and the basic comparison operators by typing '?Comparison'.</small>
+
 ### Naming Variables
 
 In R, like most programming languages, there are certain constraints around what
@@ -336,7 +339,7 @@ observeEvent(input$`function`, {
 })
 ```
 
-### Exercise
+### Exercise 1
 
 Satisfy yourself that you can store logical, double, and character
 values in a variable and confirm the 'type of' the variable. Remember, you
@@ -347,7 +350,7 @@ logical_value <- TRUE
 typeof(logical_value)
 ```
 
-## Type Conversion
+### Data Type Conversion
 
 In R, you will want to pay particular attention to the data types of your values
 and variables, because R is a **dynamically-typed** language, meaning the types
@@ -375,7 +378,7 @@ double value of `1.0`. There are also `as.integer()`, `as.character()`,
 `as.complex()`, `as.logical()`, `as.raw()`, and `as.numeric()`. `as.numeric()`
 just converts arguments to doubles, so it is essentially the same as `as.double()`.
 
-### Exercise
+### Exercise 2
 
 Satisfy yourself that you can check the types of variables and convert variables
 from one type to another. Uncomment one or more lines below to see the result.
@@ -404,4 +407,377 @@ observeEvent(input$`cast`, {
   ))
 })
 ```
+
+## Control Flow
+
+Since R is a real-live programming language, you'll want to think about **control flow**
+when you're writing R code. Put simply, control flow is the order in which the
+code you've written is evaluated. As the person writing that code, you can make
+choices about that order. In general, there are two primary tools used to control
+the flow of your program: choices and loops. 
+
+### Choices - `If` Statements
+
+In your code, you can make a *choice* about which code to run (or not run) based
+on certain `r def_link("conditions")`. In R, choices take the form of `if` 
+statements, calls to the `ifelse()` function, or the `switch()` function.
+
+```{r def_condition, context="server"}
+observeEvent(input$`conditions`, {
+  showModal(modalDialog(
+    title = "Condition",
+    "In programming, a *condition* or *conditional* is a statement or expression that evaluates to either TRUE or FALSE. These statements are generally used to help a program determine whether it should (or shouldn't) do (or continue doing) some particular set of instructions."
+  ))
+})
+```
+
+The form of an `if` statement in R is:
+
+```{r, eval=FALSE, echo=TRUE}
+if (conditional) {
+  # code to run if conditional evaluates to TRUE
+} else if (second conditional) {
+  # code to run if second conditional evaluates to TRUE
+} else {
+  # code to run if all conditionals evaluate to FALSE
+}
+```
+
+The only part actually *required* is the `if (conditional) {}`, all the 
+`else if (conditional) {}` and `else {}` blocks are optional. Unlike some other 
+programming languages you may come across, R allows you to assign the result of
+an `if` statement to a variable directly, like so:
+
+```{r, echo=TRUE, eval=FALSE}
+favorite_pet <- if (allergic_to_cats) {
+  "Dog"
+} else {
+  "Cat"
+}
+```
+
+```{r, echo=TRUE, eval=FALSE}
+favorite_pet <- if (allergic_to_cats) "Dog" else "Cat"
+```
+
+If you put the entire `if/else` expression on one line, you can omit the `{}`,
+otherwise you need them to define a **code block**, or, a set of statements that
+are grouped together. If you try to assign the value of an `if` statement without
+an `else` clause and the conditional evaluates to `FALSE`, then the assigned 
+value will be `NULL`. Also, be aware, if your *conditional* expression does not
+evaluate to a logical value (say `1 + 1`), you will get an error message. It's 
+also important that *conditional* evaluates to a *single* logical value. A 
+*conditional* that evaluates to `[TRUE, FALSE, FALSE]` will act as if it evaluated
+to just `TRUE` in an `if` statement, and the `FALSE` values will just be ignored.
+R will issue a warning message in these cases, but it will not stop program 
+execution.
+
+#### `if` Statement Practice
+
+Practice with the following `if/else` statements. Can you get it to produce the 
+"Something strange is happening..." result?
+
+```{r exercise_four, exercise=TRUE, exercise.lines = 12, exercise.eval = T}
+x <- 1
+y <- 2
+
+if (x == y) {
+  "'x' and 'y' are equal"
+} else if (x > y) {
+  "'x' is greater than 'y'"
+} else if (x < y) {
+  "'x' is less than 'y'"
+} else {
+  "Something strange is happening..."
+}
+```
+
+### Choices - `ifelse()`
+
+The second option, the `ifelse()` function, operates similarly to an `if` statement.
+The full method signature is `ifelse(test, yes, no)` where `test` should be a
+value or values that can be converted to logical (via `as.logical()`), `yes` 
+contains the value or values to return if `test` is `TRUE`, and `no` contains the
+value or values to return if `test` is `FALSE`. The biggest difference between
+`ifelse()` and an `if` statement is that `ifelse()` can handle multiple 
+*conditionals* at the same time. For example:
+
+```{r echo=TRUE}
+test <-  c(TRUE, FALSE, TRUE, NA)
+yes <-  c(2, 4, 6, 8)
+no <-  c(1, 3, 5, 7)
+ifelse(test, yes, no)
+```
+
+<small>Don't worry too much about that `c()` function, for now just consider 
+`c(TRUE, FALSE, TRUE)` to be equivalent to a list of three values: `TRUE`, `FALSE`,
+and `TRUE`.</small>
+
+We see that `ifelse()` here returns the first value of `yes`, the second value
+of `no`, and the third value of `yes`. The fourth value returned was `NA`, because
+the fourth value of `test` was `NA`. In general, it is best if `yes` and `no`
+are of the same type, but this isn't strictly required. If `yes` or `no` has
+fewer values than `test`, `ifelse()` will 'recycle' values (start over from the
+beginning) from `yes` or `no` to return as many values as are in `test`. This
+can be useful if you want to have a single value for instances when `test` is
+`FALSE`, for example:
+
+```{r echo=TRUE}
+test <- c(TRUE, FALSE, TRUE, TRUE, FALSE)
+yes <- c(1, 2, 3, 4, 5)
+ifelse(test, yes, no = NA)
+```
+
+#### `ifelse()` Practice
+
+Practice with the following `ifelse()` function call. Can you adjust the `test`
+values to yield a sum of `42`?
+
+```{r exercise_five, exercise=TRUE, exercise.lines = 5, exercise.eval = T}
+test <- c(TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, NA, FALSE)
+yes <- c(1, 2, 3, 4, 5, 6, 7, 8)
+no <- c(0, 2, 4, 6, 8, 10, 12, 14)
+result <- ifelse(test, yes, no)
+sum(result)
+```
+
+### Choices - `switch()`
+
+The final way to make a choice about program flow is the `switch()` function.
+`switch()` essentially serves as a more compact replacement of an `if` statement
+with multiple `else if` blocks, like this:
+
+```{r echo=TRUE}
+animal <- 'fox'
+animal_sound <- switch(
+  animal,
+  dog = 'woof', 
+  cat = 'meow',
+  bird = 'tweet',
+  mouse = 'squeek',
+  warning(paste('What does the', animal, 'say?'))
+)
+```
+
+The first argument passed to `switch()` should either evaluate to a single number 
+or a single character string, and the remaining arguments (except for the last) 
+should be named arguments that represent `input = output` pairs, where `input` is 
+a potential match for the first argument to `switch()` and `output` is the return 
+value if `input` matches. The final argument represents a default value. Often, 
+this last argument will throw an error, stopping execution if none of the options
+match. Regardless, you should include a default argument, otherwise `switch()` 
+will return `NULL` as the default value in case no matches are found.
+
+#### `switch()` Practice
+
+Practice with the following `switch()` function call. What animal says 'honk'?
+
+```{r exercise_five, exercise=TRUE, exercise.lines = 10, exercise.eval = T}
+animal <- 'fox'
+animal_sound <- switch(
+  animal,
+  dog = 'woof', 
+  cat = 'meow',
+  bird = 'tweet',
+  mouse = 'squeek',
+  warning(paste('What does the', animal, 'say?'))
+)
+```
+
+### Loops - `for`
+
+In general, a **loop** is a programming structure that repeats a sequence of 
+statements or expressions either a certain number of times or until a certain
+condition is met. `for` loops are used to `r def_link("iterate")` over a list 
+of values. The syntax for a for loop is:
+
+```{r def_iterate, context="server"}
+observeEvent(input$`iterate`, {
+  showModal(modalDialog(
+    title = "Iteration",
+    "In programming, we use the term *iteration* to refer to both the act of repeating a set of instructions multiple times and a single execution of that set of instructions. You may 'iterate' over a set of numbers, for example, completing the same set of operations while only changing the value of the number operated on. You can think of an iteration as a loop. Wash, rinse, repeat."
+  ))
+})
+```
+
+```{r, eval=FALSE, echo=TRUE}
+for (item in list) do_something(item)
+```
+
+```{r, eval=FALSE, echo=TRUE}
+for (item in list) {
+  do_something()
+  do_something_else()
+  finish(item)
+}
+```
+
+Just as with `if` statements, the `{}` are optional if executing only a single
+statement on one line. Unlike an `if` statement, the `for` loop cannot be assigned
+to a value and does not return anything. In a loop (including `for` loops), there
+are two special keywords in R that can modify the loop: `next` and `break`.
+`next` will cause the loop to skip the rest of the current iteration and move on
+to the next iteration. `break` will cause the loop to end prematurely, completing
+**no** further iterations.
+
+```{r echo=TRUE}
+numbers <- 1:100  # Range from 1 - 100
+for (number in numbers) {
+  # If the number is 55
+  if (number == 55) break
+  
+  # If the number is not divisible by 10
+  if (number %% 10 > 0) next
+  
+  print(number)
+}
+```
+
+#### `for` Loop Practice
+
+Practice with the following `for` loop. Can you use `next` and `break` to print
+out all the prime numbers less than 100?
+
+```{r exercise_six, exercise=TRUE, exercise.lines = 20, exercise.eval = F}
+numbers <- 1:1000
+already_reviewed <- vector("logical", 1000)
+for (number in numbers) {
+  # These two lines check to see if the number is prime, and mark that
+  # number as already reviewed. `1` is ignored, since every number is 
+  # evenly divisible by `1`.
+  is_prime <- number == 1 | all(number %% numbers[already_reviewed] > 0)
+  already_reviewed[number] <- number > 1  # set to TRUE if number > 1
+  
+  print(number)
+}
+```
+
+### Loops - `while`
+
+While a `for` loop iterates a number of times that may be known ahead of time, 
+a `while` loop instead iterates until *some condition is fulfilled*. The syntax
+for a `while` loop is:
+
+```{r, echo=TRUE, eval=FALSE}
+while (conditional) {
+  do_something()
+  conditional <- update_condition()
+}
+```
+
+A `while` loop will iterate forever (creating an *infinite loop*) unless and until
+*conditional* evaluates to `FALSE`. You can still use `next` and `break` within
+a `while` loop to skip an iteration or break out of the loop early. In practice,
+unless you're absolutely certain your *conditional* will definitely evaluate to
+`FALSE` in a reasonable amount of time (you get to decide what is reasonable), you
+can always include a built-in 'cut-off', like so:
+
+```{r, echo=TRUE, eval=FALSE}
+remaining_attempts <- 100
+item <- NULL
+
+# This loop will run until either `item` is something other than NULL, OR
+# the number of remaining attempts is zero
+while (is.null(item) & remaining_attempts > 0) {
+  item <- search_for_item()
+  remaining_attempts <- remaining_attempts - 1
+}
+```
+
+Anything you can do with a `for` loop, you can do with a `while` loop, but many
+times it is more convenient to write the `for` loop and fall back to a `while` 
+loop if you need the additional flexibility of not deciding ahead of time how
+many iterations to expect.
+
+#### `while` Loop Practice
+
+Practice with the following `while` loop. Try to get the biggest number you can
+in a 'reasonable' amount of time?
+
+```{r exercise_six, exercise=TRUE, exercise.lines = 10, exercise.eval = F}
+random_number <- 0
+biggest_number <- 0
+while (random_number < 50) {
+  random_number <- runif(1, 0, 100)  # One random number from 0 - 100
+  if (random_number > biggest_number) biggest_number <- random_number
+  cat('.')  # Prints without a new line between each print
+}
+print(biggest_number)
+```
+
+### Loops - `repeat`
+
+The final type of loop, `repeat`, is an infinite loop by default that you can
+only exit with a `break` command. As such, the syntax is even simpler:
+
+```{r, echo=TRUE, eval=FALSE}
+repeat {
+  do_something()
+}
+```
+
+This loosely translates to "do a thing over and over, forever". Here's a `repeat`
+example that prints out the first 5 Fibonacci numbers (in a bit of a convoluted
+way).
+
+```{r echo=TRUE}
+fibonacci_numbers <- vector("numeric", 5)
+nth_fib <- 0
+number_to_try <- 1
+
+repeat {
+  if (nth_fib >= 5) break  # Break if we've already found five numbers
+  
+  # The first two Fibonacci numbers (other than 0) are 1 and 2. Plus, our 
+  # `fibonacci_numbers` won't have anything in it yet until we've added 1 and 2
+  next_fib <- if (number_to_try %in% c(1, 2)) {
+    number_to_try
+  } else {
+    # The next Fibonacci number is the sum of the last two
+    fibonacci_numbers[nth_fib] + fibonacci_numbers[nth_fib - 1]
+  }
+  
+  # If the number we're trying is equal to the next expected Fibonacci number
+  # put that number in the `fibonacci_number`s
+  if (number_to_try == next_fib) {
+    fibonacci_numbers[nth_fib + 1] <- number_to_try
+    nth_fib <- nth_fib + 1
+  }
+  
+  # Increase the `number_to_try` by one to try the next number
+  number_to_try <- number_to_try + 1
+}
+
+print(fibonacci_numbers)
+```
+
+So, you can see, while `repeat` is simple on its own, you need to manually write
+more code to check a condition and decide whether or not to break from the loop.
+You can use a `repeat` to do anything that a `while` or `for` loop can do, but again,
+it's often more convenient to use a `for` or `while` when you can, and only drop
+back to `repeat` when you really need it. Mostly, you won't **need** it.
+
+#### `repeat`` Loop Practice
+
+Practice with the following `repeat` loop. See if you can get it to print an actual
+word (and then stop).
+
+```{r exercise_six, exercise=TRUE, exercise.lines = 15, exercise.eval = F}
+random_string <- ""
+current_letter <- 1
+repeat {
+  random_letter <- sample(letters, 1)
+  random_string[current_letter] <- random_letter
+  current_letter <- current_letter + 1
+}
+```
+
+
+
+
+
+
+
+
+
 

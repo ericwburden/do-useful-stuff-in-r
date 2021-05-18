@@ -572,7 +572,7 @@ will return `NULL` as the default value in case no matches are found.
 
 Practice with the following `switch()` function call. What animal says 'honk'?
 
-```{r exercise_five, exercise=TRUE, exercise.lines = 10, exercise.eval = T}
+```{r exercise_six, exercise=TRUE, exercise.lines = 10, exercise.eval = T}
 animal <- 'fox'
 animal_sound <- switch(
   animal,
@@ -638,7 +638,7 @@ for (number in numbers) {
 Practice with the following `for` loop. Can you use `next` and `break` to print
 out all the prime numbers less than 100?
 
-```{r exercise_six, exercise=TRUE, exercise.lines = 20, exercise.eval = F}
+```{r exercise_seven, exercise=TRUE, exercise.lines = 20, exercise.eval = F}
 numbers <- 1:1000
 already_reviewed <- vector("logical", 1000)
 for (number in numbers) {
@@ -694,7 +694,7 @@ many iterations to expect.
 Practice with the following `while` loop. Try to get the biggest number you can
 in a 'reasonable' amount of time?
 
-```{r exercise_six, exercise=TRUE, exercise.lines = 10, exercise.eval = F}
+```{r exercise_eight, exercise=TRUE, exercise.lines = 10, exercise.eval = F}
 random_number <- 0
 biggest_number <- 0
 while (random_number < 50) {
@@ -762,7 +762,7 @@ back to `repeat` when you really need it. Mostly, you won't **need** it.
 Practice with the following `repeat` loop. See if you can get it to print an actual
 word (and then stop).
 
-```{r exercise_six, exercise=TRUE, exercise.lines = 15, exercise.eval = F}
+```{r exercise_nine, exercise=TRUE, exercise.lines = 15, exercise.eval = F}
 random_string <- ""
 current_letter <- 1
 repeat {

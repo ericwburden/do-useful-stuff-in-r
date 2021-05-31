@@ -926,6 +926,9 @@ ggplot2::ggplot(
   )
 ```
 
+So, if you're still interested, please check out the next tutorial on a very
+important topic: Data Structures!
+
 
 
 

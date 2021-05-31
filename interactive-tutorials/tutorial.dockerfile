@@ -21,6 +21,7 @@ RUN rm shiny-server-1.5.16.958-amd64.deb
 # Other R Packages, one at a time
 RUN R -e "install.packages(c('dplyr'), repos='https://cloud.r-project.org/')"
 RUN R -e "install.packages(c('openxlsx'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('ggplot2'), repos='https://cloud.r-project.org/')"
 
 RUN rm /srv/shiny-server/index.html && rm -rf /srv/shiny-server/sample-apps
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf

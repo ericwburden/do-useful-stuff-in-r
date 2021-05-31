@@ -879,7 +879,7 @@ definitely code), but if you'll stick it out through the next few tutorials,
 you'll find that you know more than enough to get some "real work" done with R.
 Just to keep you interested, check out this example of some real problem-solving:
 
-```{r covid_vaccines_data, message=FALSE}
+```{r covid_vaccines_data, echo=TRUE, message=FALSE}
 library(dplyr)    # For the analysis
 library(ggplot2)  # For the plot
 

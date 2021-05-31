@@ -879,7 +879,7 @@ definitely code), but if you'll stick it out through the next few tutorials,
 you'll find that you know more than enough to get some "real work" done with R.
 Just to keep you interested, check out this example of some real problem-solving:
 
-```{r covid_vaccines_data}
+```{r covid_vaccines_data, message=FALSE}
 library(dplyr)    # For the analysis
 library(ggplot2)  # For the plot
 
@@ -890,7 +890,7 @@ head(covid_vaccines_data, 100)  # Let's review the data set
 ```
 
 
-```{r sample_work, message=FALSE, exercise=TRUE, exercise.eval=TRUE, exercise.lines=40}
+```{r sample_work, exercise=TRUE, exercise.eval=TRUE, exercise.lines=40}
 # For a given state (identified by `state_name`), determine the percent of 
 # cumulative doses delivered have been administered. This is a typical "chain"
 # of operations, enabled by the "pipe" (%>%) operator. This operation:

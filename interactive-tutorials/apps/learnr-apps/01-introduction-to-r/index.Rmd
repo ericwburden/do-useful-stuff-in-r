@@ -340,7 +340,7 @@ observeEvent(input$`function`, {
 })
 ```
 
-### Exercise 1
+#### Data Types Practice
 
 Satisfy yourself that you can store logical, double, and character
 values in a variable and confirm the 'type of' the variable. Remember, you
@@ -379,7 +379,7 @@ double value of `1.0`. There are also `as.integer()`, `as.character()`,
 `as.complex()`, `as.logical()`, `as.raw()`, and `as.numeric()`. `as.numeric()`
 just converts arguments to doubles, so it is essentially the same as `as.double()`.
 
-### Exercise 2
+#### Data Type Conversion Practice
 
 Satisfy yourself that you can check the types of variables and convert variables
 from one type to another. Uncomment one or more lines below to see the result.
@@ -758,7 +758,7 @@ You can use a `repeat` to do anything that a `while` or `for` loop can do, but a
 it's often more convenient to use a `for` or `while` when you can, and only drop
 back to `repeat` when you really need it. Mostly, you won't **need** it.
 
-#### `repeat`` Loop Practice
+#### `repeat` Loop Practice
 
 Practice with the following `repeat` loop. See if you can get it to print an actual
 word (and then stop).
@@ -772,6 +772,163 @@ repeat {
   current_letter <- current_letter + 1
 }
 ```
+
+## Functions
+
+The last stop on our whirlwind tour of the R language are **functions**, 
+collections of statements (code) that, ideally, does one specific thing. We've
+seen a number of examples of functions so far: `print()`, `typeof()`, 
+`as.character()`, `c()`, `ifelse()`, `switch()`, and so on. Each function takes
+*arguments*, the variables and values that go inside the `()`, performs some
+*operations* on those arguments, and (optionally) produces a *result*. When 
+we discuss the values produced by functions, we typically use the word *returns*, 
+as in: "The `sum()` function *returns* the sum of all the values present in its
+arguments". The structure of a function in R looks like:
+
+```{r echo=TRUE}
+# Scrambles a vector
+silly_function <- function(a_vector) {
+  sample(a_vector, length(a_vector))
+}
+```
+
+If you're thinking that we're assigning the function we created to a variable 
+called `silly_function`, you're absolutely right! In R, functions are treated just
+like ordinary variables (which has some interesting implications). And you *call*
+that function like so:
+
+```{r echo=TRUE}
+sequence_from_1_to_20 <- 1:20  # The 'argument' we'll pass to our function
+silly_function(sequence_from_1_to_20)
+```
+
+Basically, just adding the parentheses and arguments after the name of the 
+function. In the R console (either on a command line or in the RStudio IDE), you
+can usually type `?function_name` to get the documentation for a particular
+function, which should provide a description of the function, what it does, what
+arguments it takes, implementation details, and hopefully at least one example 
+of how to use that function. This is true for arguably all of the functions in 
+base R, and for most (if not all) of the code you'll get from elsewhere. This
+will also let you know if any of the arguments have *default arguments*, which
+means you don't have to explicitly pass those arguments to your function. Take
+this modified version of our `silly_function()`:
+
+```{r echo=TRUE}
+# Scrambles a vector, can ignore `NA` values
+# The `na.rm` argument defaults to `FALSE`
+silly_function <- function(a_vector, na.rm = FALSE) {
+  working_vector <- if (na.rm) { a_vector[!is.na(a_vector)] } else { a_vector }
+  sample(working_vector, length(working_vector))
+}
+```
+
+In this version, all the following calls work:
+
+```{r echo=TRUE}
+test_sequence <- c(1:5, NA, 6:10, NA, 7:15)
+```
+
+If you want to use the default values for arguments, then you don't need to pass
+those arguments to your function.
+
+```{r echo=TRUE}
+silly_function(test_sequence)
+```
+
+You still can pass the argument with default value though, if you want to be 
+explicit.
+
+```{r echo=TRUE}
+silly_function(test_sequence, na.rm = FALSE)
+```
+
+If you use names for all your arguments, then order doesn't matter. Unnamed
+arguments will be passed in the order defined by the function.
+
+```{r echo=TRUE}
+silly_function(na.rm = FALSE, a_vector = test_sequence)
+```
+
+These arguments will be passed as `a_vector` and `na.rm`, because the function
+defines them in that order.
+
+```{r echo=TRUE}
+silly_function(test_sequence, TRUE)
+```
+
+But you can still use the names if you'd like.
+
+```{r echo=TRUE}
+silly_function(test_sequence, na.rm = TRUE)
+```
+
+Many functions (especially in base R) use a pretty generic name for their first
+argument (with no default), such as `x`, and name the rest of the arguments
+descriptively.
+
+In general, it is good practice to keep your functions small and focused, which
+makes it easier to figure out where things go wrong if you make a mistake in 
+your code.
+
+## A Glimpse of the Future
+
+You've now gotten a pretty hefty dose of what may be a lot of new, and sometimes
+strange, information. It may seem like a lot, especially if you've never tried
+your hand at writing computer code before (although, spreadsheet formulas are
+definitely code), but if you'll stick it out through the next few tutorials, 
+you'll find that you know more than enough to get some "real work" done with R.
+Just to keep you interested, check out this example of some real problem-solving:
+
+```{r sample_work, message=FALSE, exercise=TRUE, exercise.eval=TRUE, exercise.lines=44}
+library(dplyr)    # For the analysis
+library(ggplot2)  # For the plot
+
+# Read in a data set of COVID vaccine distribution/administration data
+covid_vaccines_data <- read.csv("data/20210530_covid_vaccines.csv")
+
+# For a given state (identified by `state_name`), determine the percent of 
+# cumulative doses delivered have been administered. This is a typical "chain"
+# of operations, enabled by the "pipe" (%>%) operator. This operation:
+# 
+# 1. Takes `covid_vaccines_data`, then
+# 2. Filters the data set to only records where `state_name` is "Tennessee", then
+# 3. Converts the `date` column to actual date values and calculates the percent
+#    of cumulative doses delivered that have been administered.
+#    
+# This yields a dataframe containing one row per reported date, with the 
+# cumulative percent administered for each date, containing only records for
+# the named state.
+pct_distributed_vaccines_administered_monthly <- covid_vaccines_data %>% 
+  dplyr::filter(state_name == "Tennessee") %>% 
+  dplyr::mutate(
+    date = as.Date(date),
+    pct_administered = doses_administered_cumulative/doses_distributed_cumulative
+  ) 
+
+# This is an example of building a plot using the `ggplot2` library, a standard
+# plot-generating tool in the R toolbelt. Here, we plot `date` on the x-axis
+# and `pct_administered` on the y-axis, drawing a simple line and a smoothed
+# regression line. We also used a 'minimal' theme for the plot, adjusted the
+# y-axis labels to be in percent format, and added a title and axis labels.
+ggplot2::ggplot(
+  data = pct_distributed_vaccines_administered_monthly, 
+  mapping = ggplot2::aes(date, pct_administered)
+) + 
+  geom_line() +
+  geom_smooth() +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Percent of Distributed Vaccine Doses Administered",
+    subtitle = "January 2021 - May 2021",
+    x = "Date",
+    y = "% Cumulative Doses Administered"
+  )
+```
+
+
+
+
 
 
 
